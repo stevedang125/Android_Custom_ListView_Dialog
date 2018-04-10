@@ -2,6 +2,7 @@ package com.steve.rumi_transactions;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -53,11 +54,18 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
     private static final String TAG = "TransactionListAdapter";
     private Context mContext;
     int mResource;
+    ArrayList<Transaction> arrayList;
+
+    EditText editText_item_name;
+    EditText editText_item_price;
+
+
 
     public TransactionListAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Transaction> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
+        arrayList =  objects;
     }
 
 
@@ -69,7 +77,7 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         // Get transaction information
         final String item = getItem(position).getItem();
         final String names = getItem(position).getNames();
@@ -89,13 +97,62 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
         TextView tvPrice = (TextView) convertView.findViewById(R.id.textView3);
 
 
+//        // =========================================================
+//        System.out.println("===============> Array list: "+arrayList.get(position).getItem());
+//        System.out.println("===============> Array list: "+arrayList.get(position).getPrice());
+//        // =========================================================
 
         Button dotsButton = (Button) convertView.findViewById(R.id.threeDotsButton);
         dotsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                openDialog(item, price);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                View dialogView = inflater.inflate(R.layout.edit_item_layout,null);
+
+                builder.setView(dialogView);
+
+                builder.setTitle("Edit Item");
+
+                editText_item_name = (EditText) dialogView.findViewById(R.id.edit_item_name);
+                editText_item_price = (EditText) dialogView.findViewById(R.id.edit_item_price);
+
+                editText_item_name.setText(item);
+                editText_item_price.setText(price);
+
+                // Set the positive button
+                builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        System.out.println("Item Name: "+editText_item_name.getText().toString());
+                        System.out.println("Price: "+editText_item_price.getText().toString());
+                        arrayList.get(position).setItem(editText_item_name.getText().toString());
+                        arrayList.get(position).setPrice(editText_item_price.getText().toString());
+                    }
+                });
+
+                // Set the negative button
+                builder.setNegativeButton("Cancel", null);
+
+                // Create the alert dialog
+                AlertDialog dialog = builder.create();
+
+                // Finally, display the alert dialog
+                dialog.show();
+
+                // Get the alert dialog buttons reference
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+
+                // Change the alert dialog buttons text and background color
+                positiveButton.setTextColor(Color.parseColor("#FF0B8B42"));
+                positiveButton.setBackgroundColor(Color.parseColor("#FFE1FCEA"));
+
+                negativeButton.setTextColor(Color.parseColor("#FFFF0400"));
+                negativeButton.setBackgroundColor(Color.parseColor("#FFFCB9B7"));
 
             }
         });
@@ -110,48 +167,6 @@ public class TransactionListAdapter extends ArrayAdapter<Transaction> {
 
 
 
-    public void openDialog(String item, String price){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        View dialogView = inflater.inflate(R.layout.edit_item_layout,null);
-
-        builder.setView(dialogView);
-
-        builder.setTitle("Edit Item");
-
-        final EditText editText_item_name = (EditText) dialogView.findViewById(R.id.edit_item_name);
-        final EditText editText_item_price = (EditText) dialogView.findViewById(R.id.edit_item_price);
-
-        editText_item_name.setText(item);
-        editText_item_price.setText(price);
-
-        // Set the positive button
-        builder.setPositiveButton("Save",null);
-
-        // Set the negative button
-        builder.setNegativeButton("Cancel", null);
-
-        // Create the alert dialog
-        AlertDialog dialog = builder.create();
-
-        // Finally, display the alert dialog
-        dialog.show();
-
-        // Get the alert dialog buttons reference
-        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-
-        // Change the alert dialog buttons text and background color
-        positiveButton.setTextColor(Color.parseColor("#FF0B8B42"));
-        positiveButton.setBackgroundColor(Color.parseColor("#FFE1FCEA"));
-
-        negativeButton.setTextColor(Color.parseColor("#FFFF0400"));
-        negativeButton.setBackgroundColor(Color.parseColor("#FFFCB9B7"));
-
-    }
 }
 
 
